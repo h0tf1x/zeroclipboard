@@ -7,6 +7,8 @@ package {
   import flash.external.ExternalInterface;
   import flash.utils.*;
   import flash.system.Capabilities;
+  import flash.desktop.Clipboard;
+  import flash.desktop.ClipboardFormats;
 
   // ZeroClipboard
   //
@@ -41,6 +43,7 @@ package {
 
     // The text in the clipboard
     private var clipText:String = "";
+    private var clipHTML:String = "";
 
     // AMD module ID or path to access the ZeroClipboard object
     private var amdModuleId:String = null;
@@ -93,6 +96,7 @@ package {
       // external functions
       ExternalInterface.addCallback("setHandCursor", setHandCursor);
       ExternalInterface.addCallback("setText", setText);
+      ExternalInterface.addCallback("setHTML", setHTML);
       ExternalInterface.addCallback("setSize", setSize);
 
       // signal to the browser that we are ready
@@ -111,7 +115,8 @@ package {
 
       // Linux currently doesn't use the correct clipboard buffer with the new
       // Flash 10 API, so we need to use this until we can figure out an alternative
-      flash.system.System.setClipboard(clipText);
+      Clipboard.generalClipboard.setData(ClipboardFormats.HTML_FORMAT, clipHTML);
+      Clipboard.generalClipboard.setData(ClipboardFormats.TEXT_FORMAT, clipText);
 
       // signal to the page it is done
       dispatch("complete", ZeroClipboard.metaData(event, {
@@ -120,6 +125,7 @@ package {
 
       // reset the text
       clipText = "";
+      clipHTML = "";
     }
 
     // mouseOver
@@ -173,6 +179,11 @@ package {
       // set the maximum number of files allowed
       clipText = newText;
     }
+
+    public function setHTML(newHTML:String): void {
+      clipHTML = newHTML;
+    }
+
 
     // setHandCursor
     //
